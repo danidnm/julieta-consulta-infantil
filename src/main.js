@@ -108,6 +108,44 @@ const routes = {
       }
     }));
     Alpine.start();
+  },
+  Drawings: async () => {
+    const html = await fetch('pages/Drawings.html').then(r => r.text());
+    document.getElementById('app').innerHTML = html;
+    const comp = await fetch('components/DrawingsGrid.html').then(r => r.text());
+    const mount = document.getElementById('drawings-grid');
+    if (mount) {
+      mount.innerHTML = comp;
+      Alpine.data('drawings', () => ({
+        items: [],
+        error: '',
+        loading: false,
+        async init() {
+          this.loading = true;
+          try {
+            const res = await fetch('drawings/index.json', { cache: 'no-store' });
+            if (!res.ok) throw new Error('No se encontró drawings/index.json');
+            const list = await res.json();
+            // list can be array of filenames or objects with {src, title}
+            this.items = (Array.isArray(list) ? list : []).map(entry => {
+              const src = typeof entry === 'string' ? `drawings/${entry}` : `drawings/${entry.src}`;
+              const title = typeof entry === 'string' ? entry : (entry.title || entry.src);
+              const ext = (src.split('.').pop() || '').toLowerCase();
+              const isImage = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(ext);
+              return { src, title, isImage };
+            }).filter(it => it.src);
+          } catch (e) {
+            this.error = 'No se pudieron cargar los dibujos. Asegúrate de crear drawings/index.json';
+          } finally {
+            this.loading = false;
+          }
+        },
+        open(item) {
+          window.open(item.src, '_blank');
+        }
+      }));
+      Alpine.start();
+    }
   }
 };
 
