@@ -1,0 +1,73 @@
+<form x-data="patientForm()" x-init="init()" @submit.prevent="save()" class="space-y-6">
+
+  <div class="space-y-2">
+    <template x-if="patient.photo">
+      <div class="mt-2 flex justify-center">
+        <img 
+          :src="patient.photo" 
+          class="w-24 h-24 rounded-full border-2 border-primary object-cover"
+        >
+      </div>
+    </template>
+  </div>
+
+  <div class="space-y-2">
+    <label class="block text-sm font-medium text-gray-700">Nombre completo</label>
+    <input 
+      class="input input-bordered w-full" 
+      type="text" 
+      x-model="patient.name" 
+      placeholder="Escribe el nombre completo"
+      required
+    >
+  </div>
+  
+  <div class="space-y-2">
+    <label class="block text-sm font-medium text-gray-700">Sexo</label>
+    <select 
+      class="select select-bordered w-full" 
+      x-model="patient.gender" 
+      required
+    >
+      <option value="" disabled selected>Selecciona una opción</option>
+      <option value="chico">Chico</option>
+      <option value="chica">Chica</option>
+    </select>
+  </div>
+  
+  <div class="space-y-2">
+    <label class="block text-sm font-medium text-gray-700">Fecha de nacimiento</label>
+    <input 
+      class="input input-bordered w-full" 
+      type="date" 
+      x-model="patient.birthdate" 
+      required
+    >
+  </div>
+  
+  <div class="space-y-2">
+    <label class="block text-sm font-medium text-gray-700">Foto</label>
+    <input 
+      class="file-input file-input-bordered w-full" 
+      type="file" 
+      accept="image/*" 
+      @change="uploadPhoto($event)"
+    >
+  </div>
+  
+  <div class="flex gap-4 pt-4">
+    <button 
+      class="btn btn-primary flex-1" 
+      type="submit"
+    >
+      Guardar
+    </button>
+    <button 
+      class="btn btn-outline flex-1" 
+      type="button" 
+      @click="$dispatch('navigate', { page: 'Home' })"
+    >
+      Cancelar
+    </button>
+  </div>
+</form>

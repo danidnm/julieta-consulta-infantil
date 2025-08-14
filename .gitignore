@@ -1,0 +1,33 @@
+# ── Node / Vite
+node_modules/
+dist/
+.vite/
+*.local
+
+# Cachés / tooling
+.eslintcache
+.stylelintcache
+.cache/
+coverage/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# SO / editores
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Vercel (estado local del CLI y build output API)
+.vercel/
+.vercel/output/
+
+# Env (las reales nunca al repo; deja un .env.example)
+.env
+.env.*
+!.env.example
