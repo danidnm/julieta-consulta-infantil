@@ -10,10 +10,10 @@
   <template x-if="!loading && !error && items.length === 0">
     <div class="text-center text-gray-400 py-8">No hay dibujos disponibles. Añade archivos a public/drawings y actualiza drawings/index.json</div>
   </template>
-  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4" x-show="!loading && items.length">
+  <div class="grid grid-cols-2 gap-4" x-show="!loading && items.length">
     <template x-for="(item, idx) in items" :key="idx">
       <div class="card bg-base-100 shadow hover:shadow-lg transition cursor-pointer" @click="open(item)">
-        <figure class="aspect-[3/4] overflow-hidden bg-base-200 flex items-center justify-center">
+        <figure class="aspect-[1/1] overflow-hidden bg-base-200 flex items-center justify-center">
           <template x-if="item.isImage">
             <img :src="item.src" :alt="item.title" class="w-full h-full object-contain" loading="lazy" />
           </template>
