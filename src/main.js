@@ -27,10 +27,10 @@ const routes = {
     Alpine.start();
   },
   PatientEdit: async (id) => {
-    const html = await fetch('/pages/PatientEdit.html').then(r => r.text());
+    const html = await fetch('pages/PatientEdit.html').then(r => r.text());
     document.getElementById('app').innerHTML = html;
     // Cargar componente formulario paciente
-    const comp = await fetch('/components/PatientForm.html').then(r => r.text());
+    const comp = await fetch('components/PatientForm.html').then(r => r.text());
     document.getElementById('patient-form').innerHTML = comp;
     Alpine.data('patientForm', () => ({
       patient: id ? { ...getPatientById(id) } : { id: crypto.randomUUID(), name: '', gender: '', birthdate: '', photo: '' },
@@ -54,10 +54,10 @@ const routes = {
     Alpine.start();
   },
   ReviewNew: async (id) => {
-    const html = await fetch('/pages/ReviewNew.html').then(r => r.text());
+    const html = await fetch('pages/ReviewNew.html').then(r => r.text());
     document.getElementById('app').innerHTML = html;
     // Cargar componente formulario revisión
-    const comp = await fetch('/components/ReviewForm.html').then(r => r.text());
+    const comp = await fetch('components/ReviewForm.html').then(r => r.text());
     document.getElementById('review-form').innerHTML = comp;
     Alpine.data('reviewForm', () => ({
       review: { 
