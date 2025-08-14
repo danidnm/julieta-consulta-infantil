@@ -55,6 +55,32 @@
     >
   </div>
   
+  <!-- Listado de revisiones del paciente -->
+  <template x-if="reviews && reviews.length">
+    <div class="pt-2">
+      <h3 class="text-lg font-semibold mb-2">Revisiones</h3>
+      <ul class="menu bg-base-200 rounded-box">
+        <template x-for="(rev, idx) in reviews" :key="idx">
+          <li class="border-b last:border-b-0 hover:bg-base-300 cursor-pointer"
+              role="button"
+              tabindex="0"
+              @click="$dispatch('navigate', { page: 'ReviewNew', id: patient.id + ':' + idx })"
+              @keydown.enter="$dispatch('navigate', { page: 'ReviewNew', id: patient.id + ':' + idx })">
+            <div class="py-3 px-3">
+              <div class="flex items-center justify-between">
+                <span class="font-medium" x-text="rev.date || 'Sin fecha'"></span>
+              </div>
+              <div class="text-sm text-gray-700 mt-1">
+                <span class="font-semibold">Síntomas:</span>
+                <span x-text="rev.symptoms || '—'"></span>
+              </div>
+            </div>
+          </li>
+        </template>
+      </ul>
+    </div>
+  </template>
+
   <div class="flex gap-4 pt-4">
     <button 
       class="btn btn-primary flex-1" 

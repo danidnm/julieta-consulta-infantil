@@ -1,5 +1,5 @@
 import Alpine from 'alpinejs';
-import { getPatients, savePatients, getPatientById, getReviews, saveReview } from './store/patients';
+import { getPatients, savePatients, getPatientById, getReviews, saveReview, updateReview } from './store/patients';
 import './styles/tailwind.css'
 
 window.Alpine = Alpine;
@@ -34,7 +34,13 @@ const routes = {
     document.getElementById('patient-form').innerHTML = comp;
     Alpine.data('patientForm', () => ({
       patient: id ? { ...getPatientById(id) } : { id: crypto.randomUUID(), name: '', gender: '', birthdate: '', photo: '' },
-      init() {},
+      reviews: [],
+      init() {
+        // Cargar revisiones si el paciente ya existe
+        if (id) {
+          this.reviews = getReviews(this.patient.id) || [];
+        }
+      },
       uploadPhoto(e) {
         const file = e.target.files[0];
         if (!file) return;
@@ -59,8 +65,19 @@ const routes = {
     // Cargar componente formulario revisión
     const comp = await fetch('components/ReviewForm.html').then(r => r.text());
     document.getElementById('review-form').innerHTML = comp;
+
+    // id puede venir como "patientId" o "patientId:index" si es edición
+    const [patientId, indexStr] = (id || '').split(':');
+    const editIndex = Number.isFinite(Number(indexStr)) ? parseInt(indexStr, 10) : null;
+    const existing = editIndex !== null ? (getReviews(patientId)[editIndex] || null) : null;
+
     Alpine.data('reviewForm', () => ({
-      review: { 
+      review: existing ? {
+        ...existing,
+        // convertir tests string a array para checkboxes
+        tests: (existing.tests ? String(existing.tests).split(',').map(s => s.trim()).filter(Boolean) : []),
+        otherTests: ''
+      } : { 
         temperature: '', 
         symptoms: '', 
         result: '', 
@@ -77,12 +94,16 @@ const routes = {
             `Otras: ${this.review.otherTests}`
           ];
         }
-        
-        saveReview(id, { 
+        const payload = { 
           ...this.review,
           // Convertimos el array de tests a string para almacenamiento
           tests: this.review.tests?.join(', ') || ''
-        });
+        };
+        if (editIndex !== null) {
+          updateReview(patientId, editIndex, payload);
+        } else {
+          saveReview(patientId, payload);
+        }
         window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'Home' } }));
       }
     }));

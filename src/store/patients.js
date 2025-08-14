@@ -25,3 +25,11 @@ export function saveReview(patientId, review) {
   all[patientId].push(review);
   localStorage.setItem(REVIEWS_KEY, JSON.stringify(all));
 }
+
+export function updateReview(patientId, index, review) {
+  const all = JSON.parse(localStorage.getItem(REVIEWS_KEY) || '{}');
+  if (!all[patientId]) return; // nothing to update
+  if (index < 0 || index >= all[patientId].length) return; // out of bounds
+  all[patientId][index] = review;
+  localStorage.setItem(REVIEWS_KEY, JSON.stringify(all));
+}
