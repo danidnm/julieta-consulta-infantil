@@ -1,5 +1,6 @@
 import Alpine from 'alpinejs';
-import { getPatients, savePatients, getPatientById, getReviews, saveReview, updateReview } from './store/patients';
+import { getPatients, savePatients, getPatientById } from './store/patients';
+import { getReviews, saveReview, updateReview } from './store/reviews';
 import { getSupabaseConfig, sbUploadToBucket } from './supabase.js';
 
 window.Alpine = Alpine;
