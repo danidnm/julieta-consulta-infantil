@@ -1,94 +1,9 @@
 <div class="p-4 space-y-4" x-data="{
-  exporting: false,
-  cleaning: false,
-  migrating: false,
   supabaseUrl: localStorage.getItem('supabase.url') || '',
   supabaseKey: localStorage.getItem('supabase.key') || '',
   patientsTable: localStorage.getItem('supabase.patientsTable') || 'patients',
   reviewsTable: localStorage.getItem('supabase.reviewsTable') || 'reviews',
   message: '',
-  exportLocalStorage() {
-    try {
-      this.exporting = true;
-      const patientsRaw = localStorage.getItem('patients') ?? '[]';
-      const reviewsRaw = localStorage.getItem('reviews') ?? '{}';
-
-      // Intentamos pretty-print de JSON; si falla, dejamos el crudo
-      const pretty = (raw, fallback) => {
-        try { return JSON.stringify(JSON.parse(raw), null, 2); } catch(_) { return fallback ?? String(raw); }
-      };
-
-      const patientsTxt = pretty(patientsRaw, patientsRaw);
-      const reviewsTxt = pretty(reviewsRaw, reviewsRaw);
-
-      const now = new Date();
-      const pad = n => String(n).padStart(2, '0');
-      const stamp = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
-
-      const content = [
-        `Exportación de datos (${stamp})`,
-        '',
-        '=== patients ===',
-        patientsTxt,
-        '',
-        '=== reviews ===',
-        reviewsTxt,
-        ''
-      ].join('\n');
-
-      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `export-localstorage-${stamp}.txt`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    } catch (e) {
-      console.error('Error exportando LocalStorage', e);
-      alert('No se pudo exportar el contenido de LocalStorage. Revisa la consola para más detalles.');
-    } finally {
-      this.exporting = false;
-    }
-  },
-  async removePatientPhotos() {
-    try {
-      if (!confirm('¿Seguro que quieres borrar las fotos de todos los pacientes? Esta acción no se puede deshacer.')) return;
-      this.cleaning = true;
-      const raw = localStorage.getItem('patients') ?? '[]';
-      let patients = [];
-      try { patients = JSON.parse(raw); } catch(_) { patients = []; }
-      if (!Array.isArray(patients)) patients = [];
-
-      // Limpia campos de foto comunes
-      let changed = 0;
-      patients = patients.map(p => {
-        const copy = { ...p };
-        const before = JSON.stringify(copy);
-        // El campo usado por la app es `photo`; por seguridad, limpiamos otros nombres también
-        delete copy.photo;
-        delete copy.avatar;
-        delete copy.image;
-        delete copy.imageUrl;
-        delete copy.picture;
-        if (Array.isArray(copy.photos)) copy.photos = [];
-        const after = JSON.stringify(copy);
-        if (before !== after) changed++;
-        return copy;
-      });
-
-      // Guardamos de nuevo en LocalStorage
-      localStorage.setItem('patients', JSON.stringify(patients));
-
-      alert(`Se han eliminado las fotos. Fichas actualizadas: ${changed}`);
-    } catch (e) {
-      console.error('Error limpiando fotos de pacientes', e);
-      alert('Ocurrió un error al borrar las fotos. Revisa la consola para más detalles.');
-    } finally {
-      this.cleaning = false;
-    }
-  },
   saveSupabaseConfig() {
     localStorage.setItem('supabase.url', this.supabaseUrl.trim());
     localStorage.setItem('supabase.key', this.supabaseKey.trim());
@@ -96,147 +11,11 @@
     localStorage.setItem('supabase.reviewsTable', this.reviewsTable.trim() || 'reviews');
     this.message = 'Configuración guardada';
     setTimeout(() => this.message = '', 2500);
-  },
-  async migrateToSupabase() {
-    try {
-      this.migrating = true;
-      this.message = '';
-      const url = (this.supabaseUrl || '').trim().replace(/\/$/, '');
-      const key = (this.supabaseKey || '').trim();
-      const patientsTable = (this.patientsTable || 'patients').trim();
-      const reviewsTable = (this.reviewsTable || 'reviews').trim();
-      if (!url || !key) {
-        alert('Debes configurar Supabase URL y Anon Key.');
-        return;
-      }
-
-      // Cargar datos locales
-      const patients = (() => { try { return JSON.parse(localStorage.getItem('patients') || '[]'); } catch(_) { return []; } })();
-      const reviewsMap = (() => { try { return JSON.parse(localStorage.getItem('reviews') || '{}'); } catch(_) { return {}; } })();
-
-      // Preparar payloads
-      const patientsPayload = (Array.isArray(patients) ? patients : []).map(p => ({
-        id: p.id,
-        name: p.name || null,
-        gender: p.gender || null,
-        birthdate: p.birthdate || null,
-        photo_url: p.photo || null
-      })).filter(row => row.id);
-
-      // Insertar/Upsert pacientes
-      let patientsInserted = 0;
-      if (patientsPayload.length) {
-        const res = await fetch(`${url}/rest/v1/${encodeURIComponent(patientsTable)}?on_conflict=id`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': key,
-            'Authorization': `Bearer ${key}`,
-            'Prefer': 'resolution=merge-duplicates'
-          },
-          body: JSON.stringify(patientsPayload)
-        });
-        if (!res.ok) {
-          const text = await res.text();
-          throw new Error(`Error insertando pacientes: ${res.status} ${res.statusText} - ${text}`);
-        }
-        patientsInserted = patientsPayload.length;
-      }
-
-      // Helper: generar UUID para 'reviews.id' si no existe en origen
-      const genUUID = () => {
-        try {
-          if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-            return crypto.randomUUID();
-          }
-        } catch(_) {}
-        const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).slice(1);
-        // RFC4122-ish v4 fallback
-        return `${s4()}${s4()}-${s4()}-4${s4().slice(1)}-${((8 + Math.random()*4)|0).toString(16)}${s4().slice(1)}-${s4()}${s4()}${s4()}`;
-      };
-      // Preparar reviews en un solo array
-      const allReviews = [];
-      for (const [patientId, arr] of Object.entries(reviewsMap || {})) {
-        if (!Array.isArray(arr)) continue;
-        for (const r of arr) {
-          // Normalizar campo tests -> text[] en Supabase
-          const normalizeTests = (v) => {
-            // Aceptar arrays directamente
-            if (Array.isArray(v)) return v.map(x => String(x).trim()).filter(Boolean);
-            if (v == null) return null;
-            const s = String(v).trim();
-            if (!s) return null;
-            // Si viene como JSON de array, intentar parsear
-            try {
-              const parsed = JSON.parse(s);
-              if (Array.isArray(parsed)) return parsed.map(x => String(x).trim()).filter(Boolean);
-            } catch(_) {}
-            // Por defecto, dividir por comas
-            return s.split(',').map(x => x.trim()).filter(Boolean);
-          };
-
-          const testsValue = normalizeTests((r.tests !== undefined ? r.tests : r.test));
-
-          allReviews.push({
-            id: (r && (r.id || r.review_id || r.uuid)) || genUUID(),
-            patient_id: patientId,
-            date: r.date ?? null,
-            temperature: r.temperature ?? null,
-            symptoms: r.symptoms ?? null,
-            tests: testsValue,
-            result: r.result ?? null,
-            position: r.position ?? null
-          });
-        }
-      }
-
-      let reviewsInserted = 0;
-      if (allReviews.length) {
-        // Insertar en lotes de 500 para evitar payloads grandes
-        const chunk = 500;
-        for (let i = 0; i < allReviews.length; i += chunk) {
-          const slice = allReviews.slice(i, i + chunk);
-          const res = await fetch(`${url}/rest/v1/${encodeURIComponent(reviewsTable)}`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'apikey': key,
-              'Authorization': `Bearer ${key}`,
-              'Prefer': 'return=representation'
-            },
-            body: JSON.stringify(slice)
-          });
-          if (!res.ok) {
-            const text = await res.text();
-            throw new Error(`Error insertando revisiones: ${res.status} ${res.statusText} - ${text}`);
-          }
-          reviewsInserted += slice.length;
-        }
-      }
-
-      this.message = `Migración completada. Pacientes: ${patientsInserted}, Revisiones: ${reviewsInserted}. No se ha borrado nada del LocalStorage.`;
-      alert(this.message);
-    } catch (e) {
-      console.error(e);
-      alert(e.message || 'Error en la migración. Revisa la consola.');
-    } finally {
-      this.migrating = false;
-    }
   }
 }">
   <h2 class="text-2xl font-bold text-primary text-center">⚙️ Configuración</h2>
   <div class="max-w-xl mx-auto space-y-6">
-    <div>
-      <p class="text-center text-sm text-gray-600">Descarga un archivo .txt con el contenido de LocalStorage (claves: <code>patients</code> y <code>reviews</code>).</p>
-      <div class="flex justify-center mt-2">
-        <button class="btn btn-primary" @click="exportLocalStorage()" :disabled="exporting">
-          <span x-show="!exporting">Descargar datos (txt)</span>
-          <span x-show="exporting" class="loading loading-spinner loading-sm"></span>
-        </button>
-      </div>
-    </div>
-
-    <div class="border-t pt-4 space-y-2">
+    <div class="space-y-2">
       <h3 class="font-semibold text-center">Supabase</h3>
       <div class="grid grid-cols-1 gap-2">
         <label class="form-control">
@@ -257,25 +36,10 @@
             <input type="text" class="input input-bordered" placeholder="reviews" x-model="reviewsTable">
           </label>
         </div>
-        <div class="flex gap-2 justify-center">
+        <div class="flex justify-center">
           <button class="btn" @click="saveSupabaseConfig()">Guardar configuración</button>
-          <button class="btn btn-secondary" @click="migrateToSupabase()" :disabled="migrating">
-            <span x-show="!migrating">Migrar a Supabase</span>
-            <span x-show="migrating" class="loading loading-spinner loading-sm"></span>
-          </button>
         </div>
         <p class="text-center text-xs text-gray-500" x-text="message"></p>
-        <p class="text-center text-xs text-gray-500">Nota: La migración no borra nada del LocalStorage.</p>
-      </div>
-    </div>
-
-    <div class="border-t pt-4">
-      <p class="text-center text-sm text-gray-600">Borrar las fotos de todos los pacientes y guardar de nuevo las fichas en LocalStorage.</p>
-      <div class="flex justify-center mt-2">
-        <button class="btn btn-error" @click="removePatientPhotos()" :disabled="cleaning">
-          <span x-show="!cleaning">Borrar fotos de pacientes</span>
-          <span x-show="cleaning" class="loading loading-spinner loading-sm"></span>
-        </button>
       </div>
     </div>
   </div>
