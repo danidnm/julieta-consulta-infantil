@@ -86,15 +86,16 @@ const routes = {
     const comp = await fetch('components/ReviewForm.html').then(r => r.text());
     document.getElementById('review-form').innerHTML = comp;
 
-    // id puede venir como "patientId" o "patientId:index" si es edición
-    const [patientId, indexStr] = (id || '').split(':');
-    const editIndex = Number.isFinite(Number(indexStr)) ? parseInt(indexStr, 10) : null;
+    // id puede venir como "patientId" o "patientId:reviewKey" donde reviewKey puede ser índice o id
+    const [patientId, reviewKeyRaw] = (id || '').split(':');
+    const isIndex = reviewKeyRaw != null && reviewKeyRaw !== '' && /^\d+$/.test(reviewKeyRaw);
+    const editKey = isIndex ? parseInt(reviewKeyRaw, 10) : (reviewKeyRaw || null);
     let reviews = [];
     let existing = null;
-    if (editIndex !== null) {
+    if (editKey !== null) {
       try {
         reviews = await getReviews(patientId);
-        existing = reviews[editIndex] || null;
+        existing = isIndex ? (reviews[editKey] || null) : (reviews.find(r => r.id === editKey) || null);
       } catch (e) {
         alert(e?.message || 'Error al cargar las revisiones.');
         reviews = [];
@@ -131,8 +132,8 @@ const routes = {
           tests: this.review.tests?.join(', ') || ''
         };
         try {
-          if (editIndex !== null) {
-            await updateReview(patientId, editIndex, payload);
+          if (editKey !== null) {
+            await updateReview(patientId, editKey, payload);
           } else {
             await saveReview(patientId, payload);
           }
