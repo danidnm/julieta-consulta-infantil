@@ -1,9 +1,6 @@
 // Gestión de pacientes y revisiones usando Supabase
 import { getSupabaseConfig, hasSupabase, sbFetch } from '../supabase.js';
 
-export const PATIENTS_KEY = 'patients';
-export const REVIEWS_KEY = 'reviews';
-
 function mapPatientFromDb(row) {
   // Mapear columnas de supabase -> forma usada en la app
   return {

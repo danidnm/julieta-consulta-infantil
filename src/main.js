@@ -1,5 +1,5 @@
 import Alpine from 'alpinejs';
-import { getPatients, savePatients, getPatientById, getReviews, saveReview, updateReview, hasSupabase } from './store/patients';
+import { getPatients, savePatients, getPatientById, getReviews, saveReview, updateReview } from './store/patients';
 
 window.Alpine = Alpine;
 
@@ -65,11 +65,7 @@ const routes = {
       },
       async save() {
         try {
-          let patients = await getPatients();
-          const idx = patients.findIndex(p => p.id === this.patient.id);
-          if (idx >= 0) patients[idx] = this.patient;
-          else patients.push(this.patient);
-          await savePatients(patients);
+          await savePatients(this.patient);
           window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'Home' } }));
         } catch (e) {
           const msg = e?.message || 'Error al guardar el paciente.';
