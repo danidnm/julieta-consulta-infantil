@@ -1,4 +1,5 @@
 <div x-data="patientList()" x-init="init()">
+  <div x-show="error" class="alert alert-error mb-4" x-text="error"></div>
   <input type="text" class="input input-bordered w-full mb-4" placeholder="Buscar paciente..." x-model="search" @input="filter()">
   <ul class="space-y-2">
     <template x-for="patient in filteredPatients" :key="patient.id">

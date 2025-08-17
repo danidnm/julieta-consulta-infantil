@@ -1,5 +1,5 @@
 import Alpine from 'alpinejs';
-import { getPatients, savePatients, getPatientById, getReviews, saveReview, updateReview } from './store/patients';
+import { getPatients, savePatients, getPatientById, getReviews, saveReview, updateReview, hasSupabase } from './store/patients';
 
 window.Alpine = Alpine;
 
@@ -15,9 +15,17 @@ const routes = {
       patients: [],
       filteredPatients: [],
       search: '',
-      init() {
-        this.patients = getPatients();
-        this.filteredPatients = this.patients;
+      error: '',
+      async init() {
+        try {
+          this.patients = await getPatients();
+          this.filteredPatients = this.patients;
+        } catch (e) {
+          this.error = e?.message || 'Error al cargar pacientes.';
+          alert(this.error);
+          this.patients = [];
+          this.filteredPatients = [];
+        }
       },
       filter() {
         this.filteredPatients = this.patients.filter(p => p.name.toLowerCase().includes(this.search.toLowerCase()));
@@ -32,12 +40,20 @@ const routes = {
     const comp = await fetch('components/PatientForm.html').then(r => r.text());
     document.getElementById('patient-form').innerHTML = comp;
     Alpine.data('patientForm', () => ({
-      patient: id ? { ...getPatientById(id) } : { id: crypto.randomUUID(), name: '', gender: '', birthdate: '', photo: '' },
+      patient: { id: id || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())), name: '', gender: '', birthdate: '', photo: '' },
       reviews: [],
-      init() {
-        // Cargar revisiones si el paciente ya existe
+      error: '',
+      async init() {
+        // Cargar paciente y revisiones si el paciente ya existe
         if (id) {
-          this.reviews = getReviews(this.patient.id) || [];
+          try {
+            const p = await getPatientById(id);
+            if (p) this.patient = { ...p };
+            this.reviews = await getReviews(this.patient.id) || [];
+          } catch (e) {
+            this.error = e?.message || 'Error al cargar el paciente.';
+            alert(this.error);
+          }
         }
       },
       uploadPhoto(e) {
@@ -47,13 +63,18 @@ const routes = {
         reader.onload = (ev) => { this.patient.photo = ev.target.result; };
         reader.readAsDataURL(file);
       },
-      save() {
-        let patients = getPatients();
-        const idx = patients.findIndex(p => p.id === this.patient.id);
-        if (idx >= 0) patients[idx] = this.patient;
-        else patients.push(this.patient);
-        savePatients(patients);
-        window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'Home' } }));
+      async save() {
+        try {
+          let patients = await getPatients();
+          const idx = patients.findIndex(p => p.id === this.patient.id);
+          if (idx >= 0) patients[idx] = this.patient;
+          else patients.push(this.patient);
+          await savePatients(patients);
+          window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'Home' } }));
+        } catch (e) {
+          const msg = e?.message || 'Error al guardar el paciente.';
+          alert(msg);
+        }
       }
     }));
     Alpine.start();
@@ -68,7 +89,18 @@ const routes = {
     // id puede venir como "patientId" o "patientId:index" si es edición
     const [patientId, indexStr] = (id || '').split(':');
     const editIndex = Number.isFinite(Number(indexStr)) ? parseInt(indexStr, 10) : null;
-    const existing = editIndex !== null ? (getReviews(patientId)[editIndex] || null) : null;
+    let reviews = [];
+    let existing = null;
+    if (editIndex !== null) {
+      try {
+        reviews = await getReviews(patientId);
+        existing = reviews[editIndex] || null;
+      } catch (e) {
+        alert(e?.message || 'Error al cargar las revisiones.');
+        reviews = [];
+        existing = null;
+      }
+    }
 
     Alpine.data('reviewForm', () => ({
       review: existing ? {
@@ -85,7 +117,7 @@ const routes = {
         date: new Date().toISOString().slice(0,10) 
       },
       init() {},
-      save() {
+      async save() {
         // Si hay 'Otras pruebas' seleccionadas, las añadimos al array de tests
         if (this.review.otherTests && this.review.tests?.includes('Otras pruebas')) {
           this.review.tests = [
@@ -98,12 +130,16 @@ const routes = {
           // Convertimos el array de tests a string para almacenamiento
           tests: this.review.tests?.join(', ') || ''
         };
-        if (editIndex !== null) {
-          updateReview(patientId, editIndex, payload);
-        } else {
-          saveReview(patientId, payload);
+        try {
+          if (editIndex !== null) {
+            await updateReview(patientId, editIndex, payload);
+          } else {
+            await saveReview(patientId, payload);
+          }
+          window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'Home' } }));
+        } catch (e) {
+          alert(e?.message || 'Error al guardar la revisión.');
         }
-        window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'Home' } }));
       }
     }));
     Alpine.start();
