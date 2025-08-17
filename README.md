@@ -61,3 +61,4 @@ Se añadió una sección "Dibujos para colorear" accesible desde la pantalla pri
 Notas:
 - Si `index.json` no existe o está vacío, verás un mensaje indicando cómo configurarlo.
 - Las rutas se resuelven como `drawings/<archivo>` ya que el directorio `public/` se sirve como raíz.
+
