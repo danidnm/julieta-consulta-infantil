@@ -70,7 +70,12 @@ function normalizeTestsToString(tests) {
 export async function getPatients() {
   const { patientsTable } = getSupabaseConfig();
   const data = await sbFetch(`/rest/v1/${encodeURIComponent(patientsTable)}?select=*`);
-  return Array.isArray(data) ? data.map(mapPatientFromDb) : [];
+  // Sort by patient name (case/locale-insensitive) for consistent display on the page
+  return Array.isArray(data)
+    ? data
+        .map(mapPatientFromDb)
+        .sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' }))
+    : [];
 }
 
 export async function getPatientById(id) {
