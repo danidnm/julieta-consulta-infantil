@@ -192,11 +192,6 @@ const routes = {
       }));
       Alpine.start();
     }
-  },
-  Settings: async () => {
-    const html = await fetch('pages/Settings.html').then(r => r.text());
-    document.getElementById('app').innerHTML = html;
-    Alpine.start();
   }
 };
 
