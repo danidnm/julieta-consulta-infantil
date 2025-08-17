@@ -89,8 +89,8 @@ const routes = {
     }));
     Alpine.start();
   },
-  ReviewNew: async (id) => {
-    const html = await fetch('pages/ReviewNew.html').then(r => r.text());
+  ReviewEdit: async (id) => {
+    const html = await fetch('pages/ReviewEdit.html').then(r => r.text());
     document.getElementById('app').innerHTML = html;
     // Cargar componente formulario revisión
     const comp = await fetch('components/ReviewForm.html').then(r => r.text());

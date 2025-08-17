@@ -10,7 +10,7 @@
           <div class="text-xs text-gray-500" x-text="patient.birthdate"></div>
         </div>
         <button class="btn btn-sm btn-info ml-2" @click="$dispatch('navigate', { page: 'PatientEdit', id: patient.id })">Ver</button>
-        <button class="btn btn-sm btn-success ml-2" @click="$dispatch('navigate', { page: 'ReviewNew', id: patient.id })">Revisión</button>
+        <button class="btn btn-sm btn-success ml-2" @click="$dispatch('navigate', { page: 'ReviewEdit', id: patient.id })">Revisión</button>
       </li>
     </template>
   </ul>

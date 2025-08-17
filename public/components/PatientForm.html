@@ -64,8 +64,8 @@
           <li class="border-b last:border-b-0 hover:bg-base-300 cursor-pointer"
               role="button"
               tabindex="0"
-              @click="$dispatch('navigate', { page: 'ReviewNew', id: patient.id + ':' + (rev.id || idx) })"
-              @keydown.enter="$dispatch('navigate', { page: 'ReviewNew', id: patient.id + ':' + (rev.id || idx) })">
+              @click="$dispatch('navigate', { page: 'ReviewEdit', id: patient.id + ':' + (rev.id || idx) })"
+              @keydown.enter="$dispatch('navigate', { page: 'ReviewEdit', id: patient.id + ':' + (rev.id || idx) })">
             <div class="py-3 px-3">
               <div class="flex items-center justify-between">
                 <span class="font-medium" x-text="rev.date || 'Sin fecha'"></span>

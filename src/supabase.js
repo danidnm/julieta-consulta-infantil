@@ -11,6 +11,8 @@ export const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 export const TABLE_PATIENTS = 'patients';
 export const TABLE_REVIEWS = 'reviews';
 export const BUCKET_PHOTOS = 'photos';
+export const UPLOADER_EMAIL = 'danidnm@gmail.com';
+export const UPLOADER_PASSWORD = 'kY6LvCnfK8gt*Zi';
 
 // PROD
 // export const SUPABASE_URL = 'https://hvnyypcoeulvfxhihfhh.supabase.co'.trim();
@@ -18,11 +20,9 @@ export const BUCKET_PHOTOS = 'photos';
 // export const TABLE_PATIENTS = 'patients';
 // export const TABLE_REVIEWS = 'reviews';
 // export const BUCKET_PHOTOS = 'photos';
+// export const UPLOADER_EMAIL = 'danidnm@gmail.com';
+// export const UPLOADER_PASSWORD = 'kY6LvCnfK8gt*Zi';
 
-
-// Credenciales del usuario uploader para operaciones que requieren Auth
-export const UPLOADER_EMAIL = 'danidnm@gmail.com';
-export const UPLOADER_PASSWORD = 'kY6LvCnfK8gt*Zi';
 
 let _supabase = null;
 let _cachedUrl = null;
