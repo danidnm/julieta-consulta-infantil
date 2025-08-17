@@ -1,6 +1,5 @@
 import Alpine from 'alpinejs';
 import { getPatients, savePatients, getPatientById, getReviews, saveReview, updateReview } from './store/patients';
-import './styles/tailwind.css'
 
 window.Alpine = Alpine;
 
@@ -146,6 +145,11 @@ const routes = {
       }));
       Alpine.start();
     }
+  },
+  Settings: async () => {
+    const html = await fetch('pages/Settings.html').then(r => r.text());
+    document.getElementById('app').innerHTML = html;
+    Alpine.start();
   }
 };
 
