@@ -3,12 +3,14 @@
   supabaseKey: localStorage.getItem('supabase.key') || '',
   patientsTable: localStorage.getItem('supabase.patientsTable') || 'patients',
   reviewsTable: localStorage.getItem('supabase.reviewsTable') || 'reviews',
+  photosBucket: localStorage.getItem('supabase.photosBucket') || 'patient-photos',
   message: '',
   saveSupabaseConfig() {
     localStorage.setItem('supabase.url', this.supabaseUrl.trim());
     localStorage.setItem('supabase.key', this.supabaseKey.trim());
     localStorage.setItem('supabase.patientsTable', this.patientsTable.trim() || 'patients');
     localStorage.setItem('supabase.reviewsTable', this.reviewsTable.trim() || 'reviews');
+    localStorage.setItem('supabase.photosBucket', this.photosBucket.trim() || 'patient-photos');
     this.message = 'Configuración guardada';
     setTimeout(() => this.message = '', 2500);
   }
@@ -26,7 +28,7 @@
           <span class="label-text">Anon Key</span>
           <input type="password" class="input input-bordered" placeholder="eyJhbGci..." x-model="supabaseKey">
         </label>
-        <div class="grid grid-cols-2 gap-2">
+        <div class="grid grid-cols-3 gap-2">
           <label class="form-control">
             <span class="label-text">Tabla pacientes</span>
             <input type="text" class="input input-bordered" placeholder="patients" x-model="patientsTable">
@@ -34,6 +36,10 @@
           <label class="form-control">
             <span class="label-text">Tabla revisiones</span>
             <input type="text" class="input input-bordered" placeholder="reviews" x-model="reviewsTable">
+          </label>
+          <label class="form-control">
+            <span class="label-text">Bucket fotos</span>
+            <input type="text" class="input input-bordered" placeholder="patient-photos" x-model="photosBucket">
           </label>
         </div>
         <div class="flex justify-center">

@@ -1,5 +1,6 @@
 import Alpine from 'alpinejs';
 import { getPatients, savePatients, getPatientById, getReviews, saveReview, updateReview } from './store/patients';
+import { getSupabaseConfig, sbUploadToBucket } from './supabase.js';
 
 window.Alpine = Alpine;
 
@@ -56,12 +57,25 @@ const routes = {
           }
         }
       },
-      uploadPhoto(e) {
+      async uploadPhoto(e) {
         const file = e.target.files[0];
         if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (ev) => { this.patient.photo = ev.target.result; };
-        reader.readAsDataURL(file);
+        try {
+          const { photosBucket } = getSupabaseConfig();
+          // Extensión a partir del mime o nombre
+          const mime = file.type || 'image/jpeg';
+          const guessedExt = (file.name && file.name.includes('.')) ? file.name.split('.').pop() : '';
+          const extFromMime = mime.split('/')[1] || 'jpg';
+          const ext = (guessedExt || extFromMime || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+          const path = `patients/${this.patient.id}/avatar-${Date.now()}.${ext}`;
+          const publicUrl = await sbUploadToBucket(photosBucket, path, file, mime);
+          this.patient.photo = publicUrl;
+          // Opcional: guardar inmediatamente para persistir la URL de la foto
+          await savePatients(this.patient);
+        } catch (err) {
+          console.error(err);
+          alert(err?.message || 'No se pudo subir la foto a Supabase. Revisa la configuración en Ajustes.');
+        }
       },
       async save() {
         try {
