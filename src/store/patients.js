@@ -97,7 +97,7 @@ export async function savePatients(patients) {
 
 export async function getReviews(patientId) {
   const { reviewsTable } = getSupabaseConfig();
-  const data = await sbFetch(`/rest/v1/${encodeURIComponent(reviewsTable)}?patient_id=eq.${encodeURIComponent(patientId)}&select=*&order=date.asc`);
+  const data = await sbFetch(`/rest/v1/${encodeURIComponent(reviewsTable)}?patient_id=eq.${encodeURIComponent(patientId)}&select=*&order=created_at.desc.nullslast`);
   return (Array.isArray(data) ? data : []).map(mapReviewFromDb);
 }
 
