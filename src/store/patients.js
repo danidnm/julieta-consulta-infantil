@@ -1,5 +1,5 @@
 // Gestión de pacientes y revisiones usando Supabase
-import { getSupabaseConfig, hasSupabase, sbFetch } from '../supabase.js';
+import { getSupabaseConfig, sbFetch } from '../supabase.js';
 
 function mapPatientFromDb(row) {
   // Mapear columnas de supabase -> forma usada en la app
