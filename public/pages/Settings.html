@@ -1,0 +1,59 @@
+<div class="p-4 space-y-4" x-data="{
+  exporting: false,
+  exportLocalStorage() {
+    try {
+      this.exporting = true;
+      const patientsRaw = localStorage.getItem('patients') ?? '[]';
+      const reviewsRaw = localStorage.getItem('reviews') ?? '{}';
+
+      // Intentamos pretty-print de JSON; si falla, dejamos el crudo
+      const pretty = (raw, fallback) => {
+        try { return JSON.stringify(JSON.parse(raw), null, 2); } catch(_) { return fallback ?? String(raw); }
+      };
+
+      const patientsTxt = pretty(patientsRaw, patientsRaw);
+      const reviewsTxt = pretty(reviewsRaw, reviewsRaw);
+
+      const now = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      const stamp = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
+
+      const content = [
+        `Exportación de datos (${stamp})`,
+        '',
+        '=== patients ===',
+        patientsTxt,
+        '',
+        '=== reviews ===',
+        reviewsTxt,
+        ''
+      ].join('\n');
+
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `export-localstorage-${stamp}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('Error exportando LocalStorage', e);
+      alert('No se pudo exportar el contenido de LocalStorage. Revisa la consola para más detalles.');
+    } finally {
+      this.exporting = false;
+    }
+  }
+}">
+  <h2 class="text-2xl font-bold text-primary text-center">⚙️ Configuración</h2>
+  <div class="max-w-xl mx-auto space-y-3">
+    <p class="text-center text-sm text-gray-600">Descarga un archivo .txt con el contenido de LocalStorage (claves: <code>patients</code> y <code>reviews</code>).</p>
+    <div class="flex justify-center">
+      <button class="btn btn-primary" @click="exportLocalStorage()" :disabled="exporting">
+        <span x-show="!exporting">Descargar datos (txt)</span>
+        <span x-show="exporting" class="loading loading-spinner loading-sm"></span>
+      </button>
+    </div>
+  </div>
+</div>
