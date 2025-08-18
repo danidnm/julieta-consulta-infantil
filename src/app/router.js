@@ -51,7 +51,7 @@ export async function handleRoute() {
     window.Alpine?.initTree(app);
 
     // optional: document title
-    document.title = `${fileBase} · My App`;
+    document.title = `${fileBase} · Consulta Infantil`;
 }
 
 export function startRouter() {
