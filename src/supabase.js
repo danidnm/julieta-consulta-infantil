@@ -6,22 +6,22 @@ import { createClient } from '@supabase/supabase-js';
 // =============================
 
 // TEST
-export const SUPABASE_URL = 'https://slxoefzkhfpxpvgdcvjb.supabase.co'.trim();
-export const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNseG9lZnpraGZweHB2Z2RjdmpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0NDMyNjEsImV4cCI6MjA3MTAxOTI2MX0.VoZCqV9Cu7bcS-SDvkZLhsuBFIT1lsN2BPqUMPjY9Ow'.trim();
-export const TABLE_PATIENTS = 'patients';
-export const TABLE_REVIEWS = 'reviews';
-export const BUCKET_PHOTOS = 'photos';
-export const UPLOADER_EMAIL = 'danidnm@gmail.com';
-export const UPLOADER_PASSWORD = 'kY6LvCnfK8gt*Zi';
-
-// PROD
-// export const SUPABASE_URL = 'https://hvnyypcoeulvfxhihfhh.supabase.co'.trim();
-// export const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2bnl5cGNvZXVsdmZ4aGloZmhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0NDY0MDAsImV4cCI6MjA3MTAyMjQwMH0.y-buyOqOeTAA1YfpcEjiYvOS47FNC6ryYdFbolvzSPY'.trim();
+// export const SUPABASE_URL = 'https://slxoefzkhfpxpvgdcvjb.supabase.co'.trim();
+// export const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNseG9lZnpraGZweHB2Z2RjdmpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0NDMyNjEsImV4cCI6MjA3MTAxOTI2MX0.VoZCqV9Cu7bcS-SDvkZLhsuBFIT1lsN2BPqUMPjY9Ow'.trim();
 // export const TABLE_PATIENTS = 'patients';
 // export const TABLE_REVIEWS = 'reviews';
 // export const BUCKET_PHOTOS = 'photos';
 // export const UPLOADER_EMAIL = 'danidnm@gmail.com';
 // export const UPLOADER_PASSWORD = 'kY6LvCnfK8gt*Zi';
+
+// PROD
+export const SUPABASE_URL = 'https://hvnyypcoeulvfxhihfhh.supabase.co'.trim();
+export const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2bnl5cGNvZXVsdmZ4aGloZmhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0NDY0MDAsImV4cCI6MjA3MTAyMjQwMH0.y-buyOqOeTAA1YfpcEjiYvOS47FNC6ryYdFbolvzSPY'.trim();
+export const TABLE_PATIENTS = 'patients';
+export const TABLE_REVIEWS = 'reviews';
+export const BUCKET_PHOTOS = 'photos';
+export const UPLOADER_EMAIL = 'danidnm@gmail.com';
+export const UPLOADER_PASSWORD = 'kY6LvCnfK8gt*Zi';
 
 
 let _supabase = null;
