@@ -8,7 +8,7 @@ function mapReviewFromDb(row) {
         patient_id: row.patient_id || '',
         temperature: row.temperature ?? '',
         symptoms: row.symptoms ?? '',
-        tests: normalizeTestsToArray(row.tests),
+        tests: row.tests,
         result: row.result ?? '',
         position: row.position ?? null
     };
@@ -21,27 +21,10 @@ function mapReviewToDb(review) {
         patient_id: review.patient_id ?? null,
         temperature: review.temperature ?? null,
         symptoms: review.symptoms ?? null,
-        tests: normalizeTestsToString(review.tests),
+        tests: review.tests,
         result: review.result ?? null,
         position: review.position ?? null
     };
-}
-function normalizeTestsToArray(tests) {
-  if (tests == null) return null;
-  if (Array.isArray(tests)) return tests.map(x => String(x).trim()).filter(Boolean);
-  const s = String(tests).trim();
-  if (!s) return null;
-  try {
-    const parsed = JSON.parse(s);
-    if (Array.isArray(parsed)) return parsed.map(x => String(x).trim()).filter(Boolean);
-  } catch(_) {}
-  return s.split(',').map(x => x.trim()).filter(Boolean);
-}
-
-function normalizeTestsToString(tests) {
-  if (tests == null) return '';
-  if (Array.isArray(tests)) return tests.map(x => String(x)).filter(Boolean).join(', ');
-  return String(tests);
 }
 
 export async function getReviews(patientId) {
