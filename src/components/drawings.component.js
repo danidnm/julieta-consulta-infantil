@@ -7,15 +7,13 @@ export default function drawingsComponent() {
         async init() {
             this.loading = true;
             try {
-                // Load json with images
                 const res = await fetch('drawings/index.json', { cache: 'no-store' });
-                if (!res.ok) {
-                    throw new Error('No se encontró la lista de dibujos');
-                }
                 this.items = await res.json();
-            } catch (e) {
+            }
+            catch (e) {
                 this.error = 'No se pudieron cargar los dibujos. Asegúrate de crear drawings/index.json';
-            } finally {
+            }
+            finally {
                 this.loading = false;
             }
         },
