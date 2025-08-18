@@ -14,15 +14,7 @@
     <template x-for="(item, idx) in items" :key="idx">
       <div class="card bg-base-100 shadow hover:shadow-lg transition cursor-pointer" @click="open(item)">
         <figure class="aspect-[1/1] overflow-hidden bg-base-200 flex items-center justify-center">
-          <template x-if="item.isImage">
-            <img :src="item.src" :alt="item.title" class="w-full h-full object-contain" loading="lazy" />
-          </template>
-          <template x-if="!item.isImage">
-            <div class="text-gray-500 text-sm p-2 text-center">
-              <span class="block mb-2">Archivo</span>
-              <span class="truncate max-w-[90%]" x-text="item.title"></span>
-            </div>
-          </template>
+            <img :src="'/drawings/' + item.src" :alt="item.title" class="w-full h-full object-contain" loading="lazy" />
         </figure>
         <div class="card-body p-3">
           <h3 class="card-title text-sm" x-text="item.title"></h3>
