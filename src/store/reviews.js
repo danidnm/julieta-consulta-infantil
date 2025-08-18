@@ -53,29 +53,9 @@ export async function getReviews(patientId) {
 export async function saveReview(patientId, review) {
   const { reviewsTable } = getSupabaseConfig();
   const body = mapReviewToDb(patientId, review, { includeId: true, includePatientId: true });
-  await sbFetch(`/rest/v1/${encodeURIComponent(reviewsTable)}`, {
+  await sbFetch(`/rest/v1/${encodeURIComponent(reviewsTable)}?on_conflict=id`, {
     method: 'POST',
-    body: JSON.stringify(body)
-  });
-}
-
-export async function updateReview(patientId, indexOrId, review) {
-  // Permitir actualizar por índice o por id directo
-  const list = await getReviews(patientId);
-  if (!Array.isArray(list) || list.length === 0) return;
-  let target = null;
-  if (typeof indexOrId === 'number' && Number.isFinite(indexOrId)) {
-    if (indexOrId < 0 || indexOrId >= list.length) return;
-    target = list[indexOrId];
-  } else if (typeof indexOrId === 'string' && indexOrId) {
-    target = list.find(r => r.id === indexOrId) || null;
-  }
-  if (!target || !target.id) return;
-  const { reviewsTable } = getSupabaseConfig();
-  const body = mapReviewToDb(patientId, review, { includeId: false, includePatientId: false });
-  await sbFetch(`/rest/v1/${encodeURIComponent(reviewsTable)}?id=eq.${encodeURIComponent(target.id)}`, {
-    method: 'PATCH',
     body: JSON.stringify(body),
-    headers: { 'Prefer': 'return=minimal' }
+    headers: { 'Prefer': 'resolution=merge-duplicates' }
   });
 }

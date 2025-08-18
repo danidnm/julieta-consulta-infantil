@@ -1,6 +1,6 @@
 import Alpine from 'alpinejs';
 import { getPatients, savePatients, getPatientById } from './store/patients';
-import { getReviews, saveReview, updateReview } from './store/reviews';
+import { getReviews, saveReview } from './store/reviews';
 import { getSupabaseConfig, sbUploadToBucket } from './supabase.js';
 
 window.Alpine = Alpine;
@@ -97,16 +97,15 @@ const routes = {
     const comp = await fetch('components/ReviewForm.html').then(r => r.text());
     document.getElementById('review-form').innerHTML = comp;
 
-    // id puede venir como "patientId" o "patientId:reviewKey" donde reviewKey puede ser índice o id
-    const [patientId, reviewKeyRaw] = (id || '').split(':');
-    const isIndex = reviewKeyRaw != null && reviewKeyRaw !== '' && /^\d+$/.test(reviewKeyRaw);
-    const editKey = isIndex ? parseInt(reviewKeyRaw, 10) : (reviewKeyRaw || null);
+    // id puede venir como "patientId" (nuevo) o "patientId:reviewId" (editar)
+    const [patientId, reviewId] = (id || '').split(':');
+    const editId = reviewId || null;
     let reviews = [];
     let existing = null;
-    if (editKey !== null) {
+    if (editId !== null) {
       try {
         reviews = await getReviews(patientId);
-        existing = isIndex ? (reviews[editKey] || null) : (reviews.find(r => r.id === editKey) || null);
+        existing = reviews.find(r => r.id === editId) || null;
       } catch (e) {
         alert(e?.message || 'Error al cargar las revisiones.');
         reviews = [];
@@ -128,7 +127,9 @@ const routes = {
         otherTests: '',
         date: new Date().toISOString().slice(0,10) 
       },
-      init() {},
+      init() {
+          console.log('aasss');
+      },
       async save() {
         // Si hay 'Otras pruebas' seleccionadas, las añadimos al array de tests
         if (this.review.otherTests && this.review.tests?.includes('Otras pruebas')) {
@@ -143,11 +144,11 @@ const routes = {
           tests: this.review.tests?.join(', ') || ''
         };
         try {
-          if (editKey !== null) {
-            await updateReview(patientId, editKey, payload);
-          } else {
-            await saveReview(patientId, payload);
+          // For both create and update, use upsert via saveReview. If editing, keep the same id.
+          if (editId !== null && existing && existing.id) {
+            payload.id = existing.id;
           }
+          await saveReview(patientId, payload);
           window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'Home' } }));
         } catch (e) {
           alert(e?.message || 'Error al guardar la revisión.');
