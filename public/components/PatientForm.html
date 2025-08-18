@@ -1,98 +1,101 @@
 <form x-data="patientForm()" x-init="init()" @submit.prevent="save()" class="space-y-6">
 
-  <div class="space-y-2">
-    <template x-if="patient.photo">
-      <div class="mt-2 flex justify-center">
-        <img 
-          :src="patient.photo" 
-          class="w-24 h-24 rounded-full border-2 border-primary object-cover"
-        >
-      </div>
+    <template x-if="loading">
+
+        <div class="text-sm opacity-70">Cargando paciente…</div>
+
     </template>
-  </div>
 
-  <div class="space-y-2">
-    <label class="block text-sm font-medium text-gray-700">Nombre completo</label>
-    <input 
-      class="input input-bordered w-full" 
-      type="text" 
-      x-model="patient.name" 
-      placeholder="Escribe el nombre completo"
-      required
-    >
-  </div>
-  
-  <div class="space-y-2">
-    <label class="block text-sm font-medium text-gray-700">Sexo</label>
-    <select 
-      class="select select-bordered w-full" 
-      x-model="patient.gender" 
-      required
-    >
-      <option value="" disabled selected>Selecciona una opción</option>
-      <option value="chico">Chico</option>
-      <option value="chica">Chica</option>
-    </select>
-  </div>
-  
-  <div class="space-y-2">
-    <label class="block text-sm font-medium text-gray-700">Fecha de nacimiento</label>
-    <input 
-      class="input input-bordered w-full" 
-      type="date" 
-      x-model="patient.birthdate" 
-      required
-    >
-  </div>
-  
-  <div class="space-y-2">
-    <label class="block text-sm font-medium text-gray-700">Foto</label>
-    <input 
-      class="file-input file-input-bordered w-full" 
-      type="file" 
-      accept="image/*" 
-      @change="uploadPhoto($event)"
-    >
-  </div>
-  
-  <!-- Listado de revisiones del paciente -->
-  <template x-if="reviews && reviews.length">
-    <div class="pt-2">
-      <h3 class="text-lg font-semibold mb-2">Revisiones</h3>
-      <ul class="menu w-full bg-base-200 rounded-box">
-        <template x-for="(rev, idx) in reviews" :key="rev.id">
-          <li class="border-b last:border-b-0 hover:bg-base-300 cursor-pointer"
-              role="button"
-              tabindex="0"
-              @click="$dispatch('navigate', { page: 'ReviewEdit', id: patient.id + ':' + rev.id })"
-              @keydown.enter="$dispatch('navigate', { page: 'ReviewEdit', id: patient.id + ':' + rev.id })">
-            <div class="py-3 px-3">
-              <div class="flex items-center justify-between">
-                <span class="font-medium" x-text="rev.date || 'Sin fecha'"></span>
-              </div>
-              <div class="text-sm text-gray-700 mt-1">
-                <span x-text="rev.symptoms || '—'"></span>
-              </div>
+    <template x-if="!loading">
+
+        <div class="space-y-6">
+            <div class="space-y-2">
+                <template x-if="patient.photo">
+                    <div class="mt-2 flex justify-center">
+                        <img
+                                :src="patient.photo"
+                                class="w-24 h-24 rounded-full border-2 border-primary object-cover"
+                        >
+                    </div>
+                </template>
             </div>
-          </li>
-        </template>
-      </ul>
-    </div>
-  </template>
 
-  <div class="flex gap-4 pt-4">
-    <button 
-      class="btn btn-primary flex-1" 
-      type="submit"
-    >
-      Guardar
-    </button>
-    <button 
-      class="btn btn-outline flex-1" 
-      type="button" 
-      @click="$dispatch('navigate', { page: 'Home' })"
-    >
-      Cancelar
-    </button>
-  </div>
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700">Nombre completo</label>
+                <input
+                        class="input input-bordered w-full"
+                        type="text"
+                        x-model="patient.name"
+                        placeholder="Escribe el nombre completo"
+                        required
+                >
+            </div>
+
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700">Sexo</label>
+                <select
+                        class="select select-bordered w-full"
+                        x-model="patient.gender"
+                        required
+                >
+                    <option value="" disabled selected>Selecciona una opción</option>
+                    <option value="chico">Chico</option>
+                    <option value="chica">Chica</option>
+                </select>
+            </div>
+
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700">Fecha de nacimiento</label>
+                <input
+                        class="input input-bordered w-full"
+                        type="date"
+                        x-model="patient.birthdate"
+                        required
+                >
+            </div>
+
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700">Foto</label>
+                <input
+                        class="file-input file-input-bordered w-full"
+                        type="file"
+                        accept="image/*"
+                        @change="uploadPhoto($event)"
+                >
+            </div>
+
+            <!-- Listado de revisiones del paciente -->
+            <template x-if="reviews && reviews.length">
+                <div class="pt-2">
+                    <h3 class="text-lg font-semibold mb-2">Revisiones</h3>
+                    <ul class="menu w-full bg-base-200 rounded-box">
+                        <template x-for="(rev, idx) in reviews" :key="rev.id">
+                            <li class="border-b last:border-b-0 hover:bg-base-300 cursor-pointer"
+                                role="button"
+                                tabindex="0"
+                                @click="$dispatch('navigate', { page: 'ReviewEdit', id: patient.id + ':' + rev.id })"
+                                @keydown.enter="$dispatch('navigate', { page: 'ReviewEdit', id: patient.id + ':' + rev.id })">
+                                <div class="py-3 px-3">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-medium" x-text="rev.date || 'Sin fecha'"></span>
+                                    </div>
+                                    <div class="text-sm text-gray-700 mt-1">
+                                        <span x-text="rev.symptoms || '—'"></span>
+                                    </div>
+                                </div>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+            </template>
+
+            <div class="flex gap-4 pt-4">
+                <button class="btn btn-primary flex-1" type="submit">Guardar</button>
+                <button class="btn btn-outline flex-1" type="button" @click="location.hash = '#Home'">Cancelar</button>
+            </div>
+
+        </div>
+
+    </template>
+
 </form>

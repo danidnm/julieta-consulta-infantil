@@ -1,20 +1,37 @@
-<div x-data="patientList()" x-init="init()">
-  <div x-show="error" class="alert alert-error mb-4" x-text="error"></div>
-  <input type="text" class="input input-bordered w-full mb-4" placeholder="Buscar paciente..." x-model="search" @input="filter()">
-  <ul class="space-y-2">
-    <template x-for="patient in filteredPatients" :key="patient.id">
-      <li class="card bg-base-100 shadow-md flex flex-row items-center p-2">
-        <img :src="patient.photo || 'https://api.dicebear.com/7.x/thumbs/svg?seed='+patient.name" class="w-12 h-12 rounded-full mr-4 border-2 border-primary">
-        <div class="flex-1">
-          <div class="font-bold text-lg" x-text="patient.name"></div>
-          <div class="text-xs text-gray-500" x-text="patient.birthdate"></div>
-        </div>
-        <button class="btn btn-sm btn-info ml-2" @click="$dispatch('navigate', { page: 'PatientEdit', id: patient.id })">Ver</button>
-        <button class="btn btn-sm btn-success ml-2" @click="$dispatch('navigate', { page: 'ReviewEdit', id: patient.id })">Revisión</button>
-      </li>
+<div x-data="patientList">
+
+    <div x-show="error" class="alert alert-error mb-4" x-text="error"></div>
+
+    <input type="text"
+           class="input input-bordered w-full mb-4"
+           placeholder="Buscar paciente..."
+           x-model="search"
+           @input.debounce.200ms="filter()"
+           :disabled="loading">
+
+    <template x-if="loading">
+        <div class="text-sm opacity-70">Cargando pacientes...</div>
     </template>
-  </ul>
-  <template x-if="filteredPatients.length === 0">
-    <div class="text-center text-gray-400 mt-8">No hay pacientes</div>
-  </template>
+
+    <ul class="space-y-2">
+        <template x-for="patient in filteredPatients" :key="patient.id">
+            <li class="card bg-base-100 shadow-md flex flex-row items-center p-2">
+                <img :src="patient.photo || 'https://api.dicebear.com/7.x/thumbs/svg?seed='+patient.name"
+                     class="w-12 h-12 rounded-full mr-4 border-2 border-primary">
+                <div class="flex-1">
+                    <div class="font-bold text-lg" x-text="patient.name"></div>
+                    <div class="text-xs text-gray-500" x-text="patient.birthdate"></div>
+                </div>
+                <button class="btn btn-sm btn-info ml-2"
+                        @click="location.hash = '#PatientEdit/' + patient.id">Ver</button>
+                <button class="btn btn-sm btn-success ml-2"
+                        @click="location.hash = '#ReviewEdit/' + patient.id">Revisión</button>
+            </li>
+        </template>
+    </ul>
+
+    <template x-if="!loading && filteredPatients.length === 0">
+        <div class="text-center text-gray-400 mt-8">No hay pacientes</div>
+    </template>
+
 </div>
