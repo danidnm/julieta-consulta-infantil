@@ -1,4 +1,5 @@
 // Convention router: "#Home" -> "pages/Home.html", "#patient-details" -> "pages/PatientDetails.html"
+import { isAuthenticated } from '../store/auth.js';
 
 const app = document.getElementById('app');
 
@@ -35,13 +36,24 @@ async function render(path) {
 export async function handleRoute() {
     const { page, id } = parseHash();
     const fileBase = toFileBase(page);
+
+    // If not identified and trying to access any page other than Home, redirect to Home
+    if (fileBase !== 'Home' && !isAuthenticated()) {
+        try { sessionStorage.setItem('after_login', location.hash || '#Home'); } catch {}
+        location.hash = '#Home';
+        return;
+    }
+
+    // If identified and home is loaded, go to Patients
+    if (fileBase === 'Home' && isAuthenticated()) {
+        location.hash = '#Patients';
+        return;
+    }
+
     const path = `pages/${fileBase}.html`;
 
     // optional loading state
-    app.innerHTML = '<div class="p-4 opacity-70">Loading…</div>';
-
-    const html = await render(path);
-    app.innerHTML = html;
+    app.innerHTML = await render(path);
 
     // expose route data to components if needed
     app.dataset.page = fileBase;
@@ -49,9 +61,6 @@ export async function handleRoute() {
 
     // Alpine: initialize just this subtree
     window.Alpine?.initTree(app);
-
-    // optional: document title
-    document.title = `${fileBase} · Consulta Infantil`;
 }
 
 export function startRouter() {
