@@ -1,9 +1,10 @@
 <form x-data="reviewForm()" x-init="init()" @submit.prevent="save()" class="space-y-6">
 
     <template x-if="loading">
-
-        <div class="text-sm opacity-70">Cargando revisión...</div>
-
+        <div class="flex items-center justify-center py-4 text-gray-500">
+            <span class="loading loading-spinner loading-sm"></span>
+            <span class="ml-2 text-sm">Cargando revisión...</span>
+        </div>
     </template>
 
     <template x-if="!loading">
